@@ -5,7 +5,7 @@
 </head>
 
 <body>
-<canvas id="Kanva" width=1000 height=750 style="top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; border: 1px solid; background:url(https://png.pngtree.com/png-clipart/20220926/ourmid/pngtree-stone-floor-texture-png-image_6213938.png) "></canvas>
+<canvas id="Kanva" width=1000 height=750 style="top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; border: 1px solid; background:url(http://localhost:8000/bildes/bckg.png)"></canvas>
 <script>
 
 var kva = Kanva.getContext("2d"); 
@@ -18,7 +18,7 @@ var sakumaAtrums = {
 };
 var Objekts1Timeout;
 var Objekts2Timeout;
-var Speletajs = new Player("https://i.pinimg.com/736x/bf/06/17/bf0617439ffde2a634c09cc461894095.jpg");         
+var Speletajs = new Player("http://localhost:8000/bildes/mouse.png");         
 var Objekts1 = [];                                                         
 var Objekts2 = [];            
 var time_remaining = 180; 
@@ -78,7 +78,7 @@ Player.prototype.RandomX = function() {
 }
 
 function AddNewObjektam1() {
-    var noObjekts1 = new Player("https://i.pinimg.com/736x/45/6e/3a/456e3a571928d4e1422d0e6b73cdc2ae.jpg");
+    var noObjekts1 = new Player("http://localhost:8000/bildes/grapes.png");
         if (Math.random() < 0.5) {
         noObjekts1.Atrums_y = sakumaAtrums.Objekts1.y;
         noObjekts1.Atrums_x = 0; 
@@ -98,7 +98,7 @@ setInterval(function() {
 }, 10000);
 
 function AddNewObjektam2() {
-    var noObjekts2 = new Player("https://www.onlygfx.com/wp-content/uploads/2021/01/cartoon-cheese-2.png");
+    var noObjekts2 = new Player("http://localhost:8000/bildes/cheese.png");
     if (Math.random() < 0.5) {
         noObjekts2.Atrums_y = sakumaAtrums.Objekts2.y;
         noObjekts2.Atrums_x = 0;
