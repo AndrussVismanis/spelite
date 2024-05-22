@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Mouse and Cheese </title>
+</head>
+
+<body>
+<canvas id="Kanva" width=1000 height=750 style="top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; border: 1px solid; background:url(https://png.pngtree.com/png-clipart/20220926/ourmid/pngtree-stone-floor-texture-png-image_6213938.png) "></canvas>
+<script>
+
+var kva = Kanva.getContext("2d"); 
+var FPS = 40;                        
+var score = 0;                       
+var speles_beigas = false;
+var sakumaAtrums = {
+    Objekts1: { x: (Math.random() * 1) + 0.5, y: (Math.random() * 1.5) + 0.5 },
+    Objekts2: { x: (Math.random() * 1) + 0.5, y: (Math.random() * 1.5) + 0.5 }
+};
+var Objekts1Timeout;
+var Objekts2Timeout;
+var Speletajs = new Player("https://i.pinimg.com/736x/bf/06/17/bf0617439ffde2a634c09cc461894095.jpg");         
+var Objekts1 = [];                                                         
+var Objekts2 = [];            
+var time_remaining = 180; 
+var speed = 6
+addEventListener("keyup", MyKeyUpHandler);
+addEventListener("keydown", MyKeyDownHandler);                                                                  
+
+
+function Player (img_url) {
+    this.x = 0;
+    this.y = 0; 
+    this.redzams= true;
+    this.Atrums_x = 0;
+    this.Atrums_y = 0;
+    this.MyImg = new Image();
+    this.MyImg.src = img_url;
+}
+
+Player.prototype.Per_Frame = function() {
+    if (this.redzams) kva.drawImage(this.MyImg, this.x, this.y); 
+
+    if (this.Atrums_x !== 0 && this.Atrums_y !== 0) {
+        this.x += this.Atrums_x;
+        this.y += this.Atrums_y;
+    } else {
+        if (this.Atrums_x !== 0) {
+            if ((this.Atrums_x < 0 && this.x > 0) || (this.Atrums_x > 0 && this.x + this.MyImg.width < Kanva.width)) {
+                this.x += this.Atrums_x;
+        }
+    }
+        if (this.Atrums_y !== 0) {
+            if ((this.Atrums_y < 0 && this.y > 0) || (this.Atrums_y > 0 && this.y + this.MyImg.height < Kanva.height)) {
+                this.y += this.Atrums_y;
+        }
+    }
+}
+}
+function Objektam2TouchingSpeletajs(Objektam2, Speletajs) {
+    return (
+        Speletajs.x < Objektam2.x + Objektam2.MyImg.width &&
+        Speletajs.x + Speletajs.MyImg.width > Objektam2.x &&
+        Speletajs.y < Objektam2.y + Objektam2.MyImg.height &&
+        Speletajs.y + Speletajs.MyImg.height > Objektam2.y
+);
+}
+
+function ImagesTouching(thing1, thing2) {
+      if (!thing1.redzams  || !thing2.redzams) return false;         
+      if (thing1.x >= thing2.x + thing2.MyImg.width || thing1.x + thing1.MyImg.width <= thing2.x) return false;   
+      if (thing1.y >= thing2.y + thing2.MyImg.height || thing1.y + thing1.MyImg.height <= thing2.y) return false; 
+      return true;                                                                                                
+}
+
+
+Player.prototype.RandomX = function() {
+    this.x = Math.random() * (Kanva.width - this.MyImg.width); 
+}
+
+function AddNewObjektam1() {
+    var noObjekts1 = new Player("https://i.pinimg.com/736x/45/6e/3a/456e3a571928d4e1422d0e6b73cdc2ae.jpg");
+        if (Math.random() < 0.5) {
+        noObjekts1.Atrums_y = sakumaAtrums.Objekts1.y;
+        noObjekts1.Atrums_x = 0; 
+    } else {
+        noObjekts1.Atrums_y = sakumaAtrums.Objekts1.y;
+        noObjekts1.Atrums_x = (Math.random() < 0.5 ? -1 : 1) * sakumaAtrums.Objekts1.x;
+}
+    noObjekts1.RandomX(); 
+    Objekts1.push(noObjekts1);
+    setTimeout(AddNewObjektam1, Math.random() * 5000 / Math.pow(1.1, (Math.log(sakumaAtrums.Objekts1.x) / Math.log(1.1))));
+}
+setInterval(function() {
+    sakumaAtrums.Objekts1.x *= 1.1; 
+    sakumaAtrums.Objekts1.y *= 1.1;
+    sakumaAtrums.Objekts2.x *= 1.1;
+    sakumaAtrums.Objekts2.y *= 1.1;
+}, 10000);
+
+function AddNewObjektam2() {
+    var noObjekts2 = new Player("https://www.onlygfx.com/wp-content/uploads/2021/01/cartoon-cheese-2.png");
+    if (Math.random() < 0.5) {
+        noObjekts2.Atrums_y = sakumaAtrums.Objekts2.y;
+        noObjekts2.Atrums_x = 0;
+    } else {
+        noObjekts2.Atrums_y = sakumaAtrums.Objekts2.y;
+        noObjekts2.Atrums_x = (Math.random() < 0.5 ? -1 : 1) * sakumaAtrums.Objekts2.x;
+}
+    noObjekts2.RandomX();
+    Objekts2.push(noObjekts2);
+    setTimeout(AddNewObjektam2, Math.random() * 4000 / Math.pow(1.1, (Math.log(sakumaAtrums.Objekts2.x) / Math.log(1.1))));
+}
+
+function SpelesBeigas() {
+    kva.fillStyle= "red";
+    kva.font = "bold 50px Arial";
+    kva.textAlign="center";
+    kva.fillText("Game Over", Kanva.width / 2, Kanva.height / 2);  
+    kva.font = "bold 20px Arial";
+    kva.fillText("Press S to play again", Kanva.width / 2, (Kanva.height / 2)+50);
+    kva.textAlign="left";
+}
+
+function RaditPunktus() {
+    kva.fillStyle= "white";
+    kva.font = "20px Arial";
+    kva.fillText("Punkti: " + score, 15, 20); 
+}
+
+function RaditLaiku() {
+    kva.fillStyle = "white";
+    kva.font = "20px Arial";
+    kva.fillText("Laiks: " + Math.ceil(time_remaining), Kanva.width - 105, 20);
+}
+
+function restart_game() {
+score = 0;
+speles_beigas = false;
+time_remaining = 180;
+sakumaAtrums = {
+    Objekts1: { x: (Math.random() * 1) + 0.5, y: (Math.random() * 1) + 0.5 },
+    Objekts2: { x: (Math.random() * 1) + 0.5, y: (Math.random() * 1) + 0.5 }
+};
+Objekts1 = [];
+Objekts2 = [];
+clearTimeout(Objekts1Timeout);
+clearTimeout(Objekts2Timeout);
+AddNewObjektam1();
+AddNewObjektam2();
+Speletajs.x = 0;
+Speletajs.y = Kanva.height - Speletajs.MyImg.height;
+}
+
+
+function Do_a_Frame() {
+    kva.clearRect(0, 0, Kanva.width, Kanva.height);   
+    RaditPunktus();                                            
+    RaditLaiku();
+    Speletajs.Per_Frame();                                  
+    kva.drawImage(Speletajs.MyImg, Speletajs.x, Speletajs.y); 
+    if (!speles_beigas) {
+        time_remaining -= 1 / FPS; 
+        if (time_remaining <= 0) {
+        speles_beigas = true;
+    }
+
+   for (var i = 0; i < Objekts2.length; i++) {
+        var Objektam2 = Objekts2[i];
+        Objektam2.Per_Frame();
+        kva.drawImage(Objektam2.MyImg, Objektam2.x, Objektam2.y);
+
+    if (Objektam2TouchingSpeletajs(Objektam2, Speletajs)) {
+        Objekts2.splice(i, 1);
+        score += 1; 
+}
+    if (Objektam2.y + Objektam2.MyImg.height > Kanva.height) {
+        Objekts2.splice(i, 1);
+        i--; 
+        score -= 1; 
+        }
+    }
+
+    for (var j = 0; j < Objekts1.length; j++) {
+        var Objektam1 = Objekts1[j];
+        Objektam1.Per_Frame();
+        kva.drawImage(Objektam1.MyImg, Objektam1.x, Objektam1.y);
+
+
+        if (Objektam1.y + Objektam1.MyImg.height > Kanva.height) {
+Objekts1.splice(j, 1);
+j--; 
+score++; 
+        }
+    }
+
+    for (var k = 0; k < Objekts1.length; k++) {
+        if (ImagesTouching(Speletajs, Objekts1[k])) {
+            speles_beigas = true; 
+            break; 
+        }
+    }
+}
+if (speles_beigas) SpelesBeigas();
+}
+
+Player.prototype.Per_Frame = function() {
+    if ((this.Atrums_x < 0) && (this.x > 0))  this.x = this.x + this.Atrums_x;
+
+    if ((this.Atrums_x > 0) && (this.x + this.MyImg.width < Kanva.width )) this.x = this.x + this.Atrums_x;
+
+    if ((this.Atrums_y < 0) && (this.y > 0))  this.y = this.y + this.Atrums_y;
+
+    if ((this.Atrums_y > 0) && (this.y + this.MyImg.height< Kanva.height)) this.y = this.y + this.Atrums_y;
+}       
+
+function MyKeyUpHandler (MyEvent) { 
+    if (MyEvent.keyCode == 37) {Speletajs.Atrums_x=0};    
+    if (MyEvent.keyCode == 38) {Speletajs.Atrums_y=0};    
+    if (MyEvent.keyCode == 39) {Speletajs.Atrums_x=0};    
+    if (MyEvent.keyCode == 40) {Speletajs.Atrums_y=0};    
+}
+
+function MyKeyDownHandler (MyEvent) { 
+    if (MyEvent.keyCode == 37) {Speletajs.Atrums_x=-speed};     
+    if (MyEvent.keyCode == 38) {Speletajs.Atrums_y=-speed};      
+    if (MyEvent.keyCode == 39) {Speletajs.Atrums_x=speed};      
+    if (MyEvent.keyCode == 40) {Speletajs.Atrums_y=speed};      
+    if (MyEvent.keyCode == 83 && speles_beigas) restart_game();    
+    MyEvent.preventDefault()
+}
+
+setInterval(Do_a_Frame, 1000/FPS);                                  
+restart_game();                                                     
+</script>
+</body>
+</html>
